@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>RSVP Admin — REEL Game Show</title>
+<style>
+  :root { --black:#000; --paper:#f4f1e8; --yellow:#ffe600; --red:#ff3b00; --shadow:8px 8px 0 var(--black); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Courier New", monospace;
+    background: var(--paper);
+    color: var(--black);
+    padding: 20px;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.4;
+  }
+  h1 {
+    text-transform: uppercase;
+    font-weight: 900;
+    border-bottom: 4px solid var(--black);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+  .block {
+    border: 4px solid var(--black);
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .countnum {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+  }
+  .countlbl {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: .8rem;
+    margin-top: 6px;
+  }
+  h2 {
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  label {
+    display: block;
+    font-size: .72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 4px solid var(--black);
+    background: var(--paper);
+    border-radius: 0;
+    margin-bottom: 14px;
+  }
+  input:focus { outline: none; background: var(--yellow); }
+  button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 4px solid var(--black);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    border-radius: 0;
+    margin-bottom: 10px;
+  }
+  button:active { transform: translate(8px,8px); box-shadow: 0 0 0 var(--black); }
+  .btn-refresh { background: var(--paper); color: var(--black); }
+  .btn-reset { background: var(--red); color: var(--paper); }
+  button:disabled { background: #999; cursor: wait; }
+  .msg {
+    display: none;
+    padding: 12px;
+    border: 4px solid var(--black);
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .msg.good { background: var(--yellow); }
+  .msg.bad { background: var(--red); color: var(--paper); }
+  .hint { font-size: .78rem; opacity: .7; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <h1>RSVP Admin</h1>
+
+  <div class="block">
+    <div class="countnum" id="count">—</div>
+    <div class="countlbl">RSVPs counted</div>
+  </div>
+
+  <div class="block">
+    <button class="btn-refresh" id="refresh">Refresh count</button>
+  </div>
+
+  <div class="block">
+    <h2>Reset counter to 0</h2>
+    <label for="key">Reset key</label>
+    <input type="password" id="key" autocomplete="off" placeholder="enter reset key">
+    <button class="btn-reset" id="reset">Reset to 0</button>
+    <div class="msg" id="msg"></div>
+    <p class="hint">The key is stored only in this browser, never in the page. Full submission list lives in your Formspree dashboard.</p>
+  </div>
+
+<script>
+  var COUNTER_URL = 'https://missioncontrol--2a8f3b50758911f1b5ec1607ee4eb77e.web.val.run';
+
+  var countEl = document.getElementById('count');
+  var keyEl = document.getElementById('key');
+  var msgEl = document.getElementById('msg');
+  var refreshBtn = document.getElementById('refresh');
+  var resetBtn = document.getElementById('reset');
+
+  // Remember the reset key locally so you don't retype it.
+  keyEl.value = localStorage.getItem('reel_reset_key') || '';
+
+  function showMsg(text, ok) {
+    msgEl.textContent = text;
+    msgEl.className = 'msg ' + (ok ? 'good' : 'bad');
+    msgEl.style.display = 'block';
+  }
+
+  function loadCount() {
+    countEl.textContent = '…';
+    return fetch(COUNTER_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { countEl.textContent = d.count; })
+      .catch(function () { countEl.textContent = '?'; });
+  }
+
+  refreshBtn.addEventListener('click', loadCount);
+
+  resetBtn.addEventListener('click', function () {
+    var key = keyEl.value.trim();
+    if (!key) { showMsg('Enter the reset key first.', false); return; }
+    if (!confirm('Reset the RSVP counter to 0? This cannot be undone.')) return;
+
+    localStorage.setItem('reel_reset_key', key);
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Resetting…';
+
+    fetch(COUNTER_URL + '?reset=' + encodeURIComponent(key), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        countEl.textContent = d.count;
+        if (d.count === 0) showMsg('Counter reset to 0.', true);
+        else showMsg('Nothing changed — wrong reset key? Count is ' + d.count + '.', false);
+      })
+      .catch(function () { showMsg('Could not reach the counter. Try again.', false); })
+      .finally(function () {
+        resetBtn.disabled = false;
+        resetBtn.textContent = 'Reset to 0';
+      });
+  });
+
+  loadCount();
+</script>
+</body>
+</html>
