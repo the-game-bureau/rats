@@ -1,0 +1,14 @@
+# Render blueprint — deploys the RSVP backend.
+# In Render: New → Blueprint → connect this GitHub repo. It reads this file.
+services:
+  - type: web
+    name: reel-rats-rsvp
+    runtime: node
+    plan: free
+    buildCommand: ""      # no dependencies to install
+    startCommand: node server.js
+    envVars:
+      # Lock CORS to your GitHub Pages URL once you know it, e.g.
+      # https://your-username.github.io
+      - key: ALLOW_ORIGIN
+        value: "*"

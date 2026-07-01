@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE VERY REEL GAME SHOW // BYWATER GAMES</title>
+
+<meta name="description" content="Join me Sunday, July 5th at 5pm to be a contestant in a game show hosted by rats. $27.50. Drinks after. Bywater Games presents The Very REEL Game Show.">
+
+<!-- Open Graph / social share -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="THE VERY REEL GAME SHOW — hosted by rats">
+<meta property="og:description" content="Sunday, July 5th at 5pm. Be a contestant. $27.50. Drinks after. 1045 Desire St, New Orleans.">
+<meta property="og:image" content="rat.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE VERY REEL GAME SHOW — hosted by rats">
+<meta name="twitter:description" content="Sunday, July 5th at 5pm. Be a contestant. $27.50. Drinks after.">
+<meta name="twitter:image" content="rat.jpg">
+
+<style>
+  :root {
+    --black: #000000;
+    --paper: #f4f1e8;
+    --yellow: #ffe600;
+    --red: #ff3b00;
+    --shadow: 8px 8px 0 var(--black);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  body {
+    font-family: "Courier New", "Lucida Console", monospace;
+    color: var(--black);
+    line-height: 1.4;
+    padding: 16px;
+    -webkit-font-smoothing: none;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  /* ---- HEADER ---- */
+  .top {
+    border: 4px solid var(--black);
+    background: var(--yellow);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .ticker {
+    background: var(--black);
+    color: var(--yellow);
+    font-size: 0.72rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .top-inner { display: flex; flex-wrap: wrap; align-items: stretch; }
+  .top-img {
+    flex: 0 0 auto;
+    width: 140px;
+    border-right: 4px solid var(--black);
+    background: var(--paper);
+  }
+  .top-img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.4);
+  }
+  .top-txt { flex: 1 1 220px; padding: 16px; }
+  .kicker {
+    display: inline-block;
+    background: var(--red);
+    color: var(--paper);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 7vw, 3rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+
+  /* ---- BLOCKS ---- */
+  .block {
+    border: 4px solid var(--black);
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .block.invert { background: var(--black); color: var(--paper); }
+  .block.invert .lbl { color: var(--yellow); }
+
+  .pitch p { font-size: 1.15rem; margin-bottom: 12px; }
+  .pitch p:last-child { margin-bottom: 0; }
+  .pitch .huge {
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .pitch .price { background: var(--yellow); padding: 0 4px; font-weight: 900; }
+  .pitch .rats { background: var(--black); color: var(--yellow); padding: 0 6px; }
+
+  /* ---- FACTS ---- */
+  .facts { list-style: none; }
+  .facts li {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 2px dashed var(--black);
+    font-size: 1.05rem;
+  }
+  .facts li:first-child { padding-top: 0; }
+  .facts li:last-child { border-bottom: none; padding-bottom: 0; }
+  .lbl {
+    flex: 0 0 70px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding-top: 4px;
+    font-weight: 900;
+  }
+  .facts a { color: var(--black); text-decoration: underline; word-break: break-all; }
+
+  .note {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+  .note strong { background: var(--yellow); color: var(--black); padding: 0 4px; }
+
+  /* ---- FORM ---- */
+  h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 16px;
+    border-bottom: 4px solid var(--black);
+    padding-bottom: 8px;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .field { margin-bottom: 16px; flex: 1 1 180px; }
+  .field.initial { flex: 0 0 100px; }
+  label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    border: 4px solid var(--black);
+    background: var(--paper);
+    color: var(--black);
+    border-radius: 0;
+  }
+  input:focus { outline: none; background: var(--yellow); }
+  button {
+    width: 100%;
+    padding: 18px;
+    font-size: 1.2rem;
+    font-family: inherit;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--red);
+    border: 4px solid var(--black);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    border-radius: 0;
+  }
+  button:hover { background: var(--black); }
+  button:active { transform: translate(8px, 8px); box-shadow: 0 0 0 var(--black); }
+  button:disabled { background: #888; cursor: wait; }
+
+  .ok {
+    display: none;
+    margin-top: 16px;
+    padding: 14px;
+    border: 4px solid var(--black);
+    background: var(--yellow);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-top: 4px solid var(--black);
+    padding-top: 16px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="top">
+      <div class="ticker">★ CONTESTANTS WANTED ★ HOSTED BY RATS ★ DRINKS AFTER ★ CONTESTANTS WANTED ★ HOSTED BY RATS ★</div>
+      <div class="top-inner">
+        <div class="top-img"><img src="rat.jpg" alt="Your host, a rat"></div>
+        <div class="top-txt">
+          <span class="kicker">Bywater Games Presents</span>
+          <h1>The Very REEL Game Show</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="block pitch">
+      <p class="huge">Join me this Sunday, July 5th at 5pm to be a contestant in a game show.</p>
+      <p>It costs <span class="price">$27.50</span>.</p>
+      <p>Oh, and it's hosted by <span class="rats">RATS</span>.</p>
+      <p>Drinks after.</p>
+    </div>
+
+    <div class="block invert">
+      <ul class="facts">
+        <li><span class="lbl">When</span><span>Sunday, July 5th &mdash; 5:00 PM</span></li>
+        <li><span class="lbl">Cost</span><span>$27.50</span></li>
+        <li><span class="lbl">Where</span><span>1045 Desire St, New Orleans, LA</span></li>
+        <li><span class="lbl">Info</span><span><a href="https://www.bywatergames.com/offerings" target="_blank" rel="noopener" style="color:var(--yellow)">bywatergames.com/offerings</a></span></li>
+      </ul>
+    </div>
+
+    <div class="block note">
+      I'll send my Venmo link to the <strong>first 8 people</strong> that reply affirmatively.
+      Please let me know by <strong>Friday</strong>.
+    </div>
+
+    <div class="block">
+      <h2>RSVP // Count Me In</h2>
+      <form id="rsvp" novalidate>
+        <div class="row">
+          <div class="field">
+            <label for="first">First Name</label>
+            <input type="text" id="first" name="first" autocomplete="given-name" required>
+          </div>
+          <div class="field initial">
+            <label for="last">Last Initial</label>
+            <input type="text" id="last" name="last" maxlength="1" autocomplete="off" required>
+          </div>
+        </div>
+        <button type="submit">I'm In &mdash; RSVP</button>
+      </form>
+      <div class="ok" id="ok"></div>
+    </div>
+
+    <footer>Bywater Games // The Very REEL Game Show // Hosted By Rats</footer>
+
+  </div>
+
+  <script>
+    // ── After deploying server.js (Render/Railway/Fly), paste its URL here ──
+    // e.g. 'https://reel-rats.onrender.com'  (no trailing slash)
+    // Leave '' to use the same origin (works when running `node server.js` locally).
+    var BACKEND_URL = '';
+
+    var form = document.getElementById('rsvp');
+    var ok = document.getElementById('ok');
+    var btn = form.querySelector('button');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var first = document.getElementById('first').value.trim();
+      var last = document.getElementById('last').value.trim();
+      if (!first || !last) {
+        (first ? document.getElementById('last') : document.getElementById('first')).focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'SENDING...';
+
+      fetch(BACKEND_URL + '/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first: first, last: last })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error(data.error || 'Something went wrong.');
+        ok.style.display = 'block';
+        ok.style.background = 'var(--yellow)';
+        var msg = 'THANKS, ' + data.name.toUpperCase() + '! YOU\'RE ON THE LIST. ';
+        msg += data.getsVenmo
+          ? 'YOU MADE THE FIRST 8 — WATCH FOR THE VENMO LINK.'
+          : 'THE FIRST 8 VENMO SPOTS ARE FULL, BUT YOU\'RE STILL IN.';
+        ok.textContent = msg;
+        form.reset();
+      })
+      .catch(function (err) {
+        ok.style.display = 'block';
+        ok.style.background = 'var(--red)';
+        ok.style.color = 'var(--paper)';
+        ok.textContent = (err.message || 'COULD NOT SEND RSVP. TRY AGAIN.').toUpperCase();
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = "I'm In &mdash; RSVP";
+      });
+    });
+  </script>
+</body>
+</html>
