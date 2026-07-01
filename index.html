@@ -181,6 +181,8 @@
   button:hover { background: var(--black); }
   button:active { transform: translate(8px, 8px); box-shadow: 0 0 0 var(--black); }
   button:disabled { background: #888; cursor: wait; }
+  .btn-no { background: var(--black); margin-top: 12px; }
+  .btn-no:hover { background: var(--red); }
 
   .ok {
     display: none;
@@ -261,7 +263,8 @@
             <input type="text" id="last" name="last" maxlength="1" autocomplete="off" required>
           </div>
         </div>
-        <button type="submit">I'm In &mdash; RSVP</button>
+        <button type="submit" id="yes">I'm In &mdash; RSVP</button>
+        <button type="button" id="decline" class="btn-no">RATS! Can't make it</button>
       </form>
       <div class="ok" id="ok"></div>
     </div>
@@ -279,7 +282,8 @@
 
     var form = document.getElementById('rsvp');
     var ok = document.getElementById('ok');
-    var btn = form.querySelector('button');
+    var yesBtn = document.getElementById('yes');
+    var noBtn = document.getElementById('decline');
     var spots = document.getElementById('spots');
 
     function renderSpots(count) {
@@ -328,8 +332,15 @@
       })
       .catch(function () {});
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    function resetButtons() {
+      yesBtn.disabled = false;
+      noBtn.disabled = false;
+      yesBtn.innerHTML = "I'm In &mdash; RSVP";
+      noBtn.innerHTML = "RATS! Can't make it";
+    }
+
+    // Shared handler: attending=true is a yes RSVP, false is a regret.
+    function send(attending, activeBtn) {
       var first = document.getElementById('first').value.trim();
       var last = document.getElementById('last').value.trim();
       if (!first || !last) {
@@ -337,17 +348,21 @@
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'SENDING...';
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      activeBtn.textContent = 'SENDING...';
+
+      var name = first + ' ' + last.charAt(0).toUpperCase();
 
       fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: first + ' ' + last.charAt(0).toUpperCase(),
+          name: name,
           firstName: first,
           lastInitial: last.charAt(0).toUpperCase(),
-          _subject: 'REEL Game Show RSVP: ' + first + ' ' + last.charAt(0).toUpperCase()
+          attending: attending ? 'YES' : 'NO',
+          _subject: (attending ? 'REEL Game Show RSVP: ' : 'REEL Game Show REGRETS: ') + name
         })
       })
       .then(function (r) {
@@ -361,28 +376,35 @@
           throw new Error(msg);
         }
         ok.style.display = 'block';
-        ok.style.background = 'var(--yellow)';
-        ok.style.color = 'var(--black)';
-        ok.textContent = 'THANKS, ' + (first + ' ' + last.charAt(0)).toUpperCase() +
-          "! YOU'RE ON THE LIST. FIRST 8 REPLIES GET THE VENMO LINK — WATCH YOUR MESSAGES.";
+        if (attending) {
+          ok.style.background = 'var(--yellow)';
+          ok.style.color = 'var(--black)';
+          ok.textContent = 'THANKS, ' + name.toUpperCase() +
+            "! YOU'RE ON THE LIST. FIRST 8 REPLIES GET THE VENMO LINK — WATCH YOUR MESSAGES.";
+          // Bump the durable counter only after a confirmed yes.
+          fetch(COUNTER_URL, { method: 'POST' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { renderSpots(d.count); })
+            .catch(function () {});
+        } else {
+          ok.style.background = 'var(--black)';
+          ok.style.color = 'var(--paper)';
+          ok.textContent = "RATS! WE'LL MISS YOU, " + name.toUpperCase() +
+            '. THANKS FOR LETTING ME KNOW.';
+        }
         form.reset();
-        // Bump the durable counter only after a confirmed RSVP.
-        fetch(COUNTER_URL, { method: 'POST' })
-          .then(function (r) { return r.json(); })
-          .then(function (d) { renderSpots(d.count); })
-          .catch(function () {});
       })
       .catch(function (err) {
         ok.style.display = 'block';
         ok.style.background = 'var(--red)';
         ok.style.color = 'var(--paper)';
-        ok.textContent = (err.message || 'COULD NOT SEND RSVP. TRY AGAIN.').toUpperCase();
+        ok.textContent = (err.message || 'COULD NOT SEND. TRY AGAIN.').toUpperCase();
       })
-      .finally(function () {
-        btn.disabled = false;
-        btn.innerHTML = "I'm In &mdash; RSVP";
-      });
-    });
+      .finally(resetButtons);
+    }
+
+    form.addEventListener('submit', function (e) { e.preventDefault(); send(true, yesBtn); });
+    noBtn.addEventListener('click', function () { send(false, noBtn); });
   </script>
 </body>
 </html>
