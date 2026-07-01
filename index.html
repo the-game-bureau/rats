@@ -95,6 +95,18 @@
     line-height: 1.5;
   }
   .note strong { background: var(--yellow); color: var(--black); padding: 0 4px; }
+  .spots {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: var(--black);
+    color: var(--yellow);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    text-align: center;
+  }
+  .spots.full { background: var(--red); color: var(--paper); }
 
   /* ---- FORM ---- */
   h2 {
@@ -190,6 +202,7 @@
     <div class="block note">
       I'll send my Venmo link to the <strong>first 8 people</strong> that reply affirmatively.
       Please let me know by <strong>Friday</strong>.
+      <div class="spots" id="spots" hidden></div>
     </div>
 
     <div class="block">
@@ -219,9 +232,32 @@
     //    paste its URL here (looks like https://formspree.io/f/abcdwxyz). ──
     var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjgqajey';
 
+    // Val Town durable counter: GET returns {count}, POST increments.
+    var COUNTER_URL = 'https://missioncontrol--2a8f3b50758911f1b5ec1607ee4eb77e.web.val.run';
+    var VENMO_SPOTS = 8;
+
     var form = document.getElementById('rsvp');
     var ok = document.getElementById('ok');
     var btn = form.querySelector('button');
+    var spots = document.getElementById('spots');
+
+    function renderSpots(count) {
+      if (typeof count !== 'number' || count < 0) return;
+      if (count <= VENMO_SPOTS) {
+        spots.className = 'spots';
+        spots.textContent = count + ' of ' + VENMO_SPOTS + ' Venmo spots claimed';
+      } else {
+        spots.className = 'spots full';
+        spots.textContent = VENMO_SPOTS + ' of ' + VENMO_SPOTS + ' Venmo spots claimed · ' + count + ' coming';
+      }
+      spots.hidden = false;
+    }
+
+    // Show the current count on load (fails silently — never blocks the page).
+    fetch(COUNTER_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { renderSpots(d.count); })
+      .catch(function () {});
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -261,6 +297,11 @@
         ok.textContent = 'THANKS, ' + (first + ' ' + last.charAt(0)).toUpperCase() +
           "! YOU'RE ON THE LIST. FIRST 8 REPLIES GET THE VENMO LINK — WATCH YOUR MESSAGES.";
         form.reset();
+        // Bump the durable counter only after a confirmed RSVP.
+        fetch(COUNTER_URL, { method: 'POST' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { renderSpots(d.count); })
+          .catch(function () {});
       })
       .catch(function (err) {
         ok.style.display = 'block';
