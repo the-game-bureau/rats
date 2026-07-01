@@ -215,10 +215,9 @@
   </div>
 
   <script>
-    // ── After deploying server.js (Render/Railway/Fly), paste its URL here ──
-    // e.g. 'https://reel-rats.onrender.com'  (no trailing slash)
-    // Leave '' to use the same origin (works when running `node server.js` locally).
-    var BACKEND_URL = 'https://reel-rats-rsvp.onrender.com';
+    // ── Formspree endpoint: create a free form at https://formspree.io and
+    //    paste its URL here (looks like https://formspree.io/f/abcdwxyz). ──
+    var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjgqajey';
 
     var form = document.getElementById('rsvp');
     var ok = document.getElementById('ok');
@@ -236,21 +235,31 @@
       btn.disabled = true;
       btn.textContent = 'SENDING...';
 
-      fetch(BACKEND_URL + '/rsvp', {
+      fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first: first, last: last })
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: first + ' ' + last.charAt(0).toUpperCase(),
+          firstName: first,
+          lastInitial: last.charAt(0).toUpperCase(),
+          _subject: 'REEL Game Show RSVP: ' + first + ' ' + last.charAt(0).toUpperCase()
+        })
       })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.ok) throw new Error(data.error || 'Something went wrong.');
+      .then(function (r) {
+        return r.json().then(function (data) { return { okHttp: r.ok, data: data }; });
+      })
+      .then(function (res) {
+        if (!res.okHttp) {
+          var msg = res.data && res.data.errors
+            ? res.data.errors.map(function (x) { return x.message; }).join(', ')
+            : 'Something went wrong.';
+          throw new Error(msg);
+        }
         ok.style.display = 'block';
         ok.style.background = 'var(--yellow)';
-        var msg = 'THANKS, ' + data.name.toUpperCase() + '! YOU\'RE ON THE LIST. ';
-        msg += data.getsVenmo
-          ? 'YOU MADE THE FIRST 8 — WATCH FOR THE VENMO LINK.'
-          : 'THE FIRST 8 VENMO SPOTS ARE FULL, BUT YOU\'RE STILL IN.';
-        ok.textContent = msg;
+        ok.style.color = 'var(--black)';
+        ok.textContent = 'THANKS, ' + (first + ' ' + last.charAt(0)).toUpperCase() +
+          "! YOU'RE ON THE LIST. FIRST 8 REPLIES GET THE VENMO LINK — WATCH YOUR MESSAGES.";
         form.reset();
       })
       .catch(function (err) {
