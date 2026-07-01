@@ -204,19 +204,25 @@
     margin-top: 8px;
   }
 
-  /* ---- MOBILE ---- */
-  @media (max-width: 480px) {
+  /* ---- MOBILE: larger, more readable ---- */
+  @media (max-width: 600px) {
     :root { --shadow: 5px 5px 0 var(--black); }
     body { padding: 12px; }
-    .block { padding: 16px; margin-bottom: 18px; }
-    .pitch p { font-size: 1.05rem; }
-    .pitch .huge { font-size: 1.2rem; }
+    .block { padding: 18px; margin-bottom: 18px; }
+    .pitch p { font-size: 1.3rem; }
+    .pitch .huge { font-size: 1.65rem; line-height: 1.18; }
     .pitch-rat { width: 120px; margin: 0 0 10px 12px; }
-    .facts li { font-size: 1rem; }
-    .facts .lbl { flex-basis: 58px; }
-    h2 { font-size: 1.3rem; }
-    .roster li { font-size: 1rem; }
-    button { padding: 16px; }
+    .facts li { font-size: 1.25rem; }
+    .facts .lbl { flex-basis: 62px; font-size: .82rem; padding-top: 5px; }
+    .note { font-size: 1.3rem; line-height: 1.55; }
+    .spots { font-size: 1.2rem; }
+    h2 { font-size: 1.55rem; }
+    label { font-size: .85rem; }
+    input[type="text"] { font-size: 1.3rem; padding: 16px; }
+    button { padding: 20px; font-size: 1.3rem; }
+    .roster li { font-size: 1.25rem; }
+    .roster .tag { font-size: .78rem; padding: 3px 9px; }
+    .ok { font-size: 1.2rem; }
   }
 </style>
 </head>
