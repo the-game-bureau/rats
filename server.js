@@ -39,6 +39,90 @@ function countRsvps() {
   return Math.max(0, lines.length - 1); // minus header
 }
 
+// Parse a single RFC-4180 CSV line (handles quotes and escaped "").
+function parseCsvLine(line) {
+  const out = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; }
+        else inQuotes = false;
+      } else cur += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ',') { out.push(cur); cur = ''; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+function parseRsvps() {
+  const lines = fs.readFileSync(CSV, 'utf8').trim().split('\n').slice(1).filter(Boolean);
+  return lines.map(parseCsvLine).map(([timestamp, first, last]) => ({ timestamp, first, last }));
+}
+
+// Escape text for safe HTML output.
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+// GET /list?key=... — private admin view of who has RSVP'd.
+function handleList(req, res, query) {
+  const ADMIN_KEY = process.env.ADMIN_KEY;
+  if (!ADMIN_KEY) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('RSVP list is locked. Set an ADMIN_KEY environment variable on the server (Render → Environment) to enable it.');
+  }
+  if (query.get('key') !== ADMIN_KEY) {
+    res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('Unauthorized. Add ?key=YOUR_ADMIN_KEY to the URL.');
+  }
+
+  const people = parseRsvps();
+
+  if (query.get('format') === 'json') {
+    return sendJson(res, 200, { count: people.length, spots: VENMO_SPOTS, people });
+  }
+
+  const rows = people.map((p, i) => {
+    const n = i + 1;
+    const venmo = n <= VENMO_SPOTS ? '<span class="v">VENMO</span>' : '';
+    const when = esc((p.timestamp || '').replace('T', ' ').replace(/\..*/, '') + ' UTC');
+    return `<tr><td>${n}</td><td>${esc(p.first)} ${esc(p.last)}</td><td>${when}</td><td>${venmo}</td></tr>`;
+  }).join('');
+
+  const body = people.length
+    ? `<table><thead><tr><th>#</th><th>Name</th><th>When (UTC)</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+    : '<p class="empty">No RSVPs yet.</p>';
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>RSVP List</title><style>
+body{font-family:"Courier New",monospace;background:#f4f1e8;color:#000;padding:20px;max-width:680px;margin:0 auto}
+h1{text-transform:uppercase;border-bottom:4px solid #000;padding-bottom:8px}
+.count{font-weight:900;margin:12px 0}
+table{width:100%;border-collapse:collapse;border:4px solid #000;background:#fff}
+th,td{border:2px solid #000;padding:8px 10px;text-align:left;font-size:.95rem}
+th{background:#000;color:#ffe600;text-transform:uppercase;font-size:.72rem;letter-spacing:1px}
+.v{background:#ffe600;padding:1px 6px;font-weight:900;font-size:.7rem}
+.empty{border:4px solid #000;background:#ffe600;padding:16px;font-weight:900;text-transform:uppercase}
+.note{margin-top:16px;font-size:.8rem;opacity:.7}
+</style></head><body>
+<h1>RSVP List</h1>
+<p class="count">${people.length} RSVP${people.length === 1 ? '' : 's'} · first ${VENMO_SPOTS} get the Venmo link</p>
+${body}
+<p class="note">Yellow VENMO tag = made the first ${VENMO_SPOTS}. Add &format=json for raw data.</p>
+</body></html>`;
+
+  setCors(res);
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(html);
+}
+
 // Allow the GitHub Pages site (a different origin) to POST here.
 // Set ALLOW_ORIGIN to your Pages URL to lock it down, e.g.
 //   ALLOW_ORIGIN=https://you.github.io  node server.js
@@ -141,6 +225,10 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'POST' && req.url === '/rsvp') {
     return handleRsvp(req, res);
+  }
+  const url = new URL(req.url, 'http://localhost');
+  if (req.method === 'GET' && url.pathname === '/list') {
+    return handleList(req, res, url.searchParams);
   }
   if (req.method === 'GET' || req.method === 'HEAD') {
     return serveStatic(req, res);
