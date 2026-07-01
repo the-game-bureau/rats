@@ -245,10 +245,10 @@
       if (typeof count !== 'number' || count < 0) return;
       if (count <= VENMO_SPOTS) {
         spots.className = 'spots';
-        spots.textContent = count + ' of ' + VENMO_SPOTS + ' Venmo spots claimed';
+        spots.textContent = count + ' of ' + VENMO_SPOTS + ' spots claimed';
       } else {
         spots.className = 'spots full';
-        spots.textContent = VENMO_SPOTS + ' of ' + VENMO_SPOTS + ' Venmo spots claimed · ' + count + ' coming';
+        spots.textContent = VENMO_SPOTS + ' of ' + VENMO_SPOTS + ' spots claimed · ' + count + ' coming';
       }
       spots.hidden = false;
     }
