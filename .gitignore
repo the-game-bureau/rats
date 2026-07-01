@@ -1,4 +1,0 @@
-node_modules/
-
-# RSVP submissions are data, not code — don't commit them.
-rsvps.csv
