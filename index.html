@@ -26,13 +26,15 @@
     --shadow: 8px 8px 0 var(--black);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--paper); }
+  html, body { background: var(--paper); overflow-x: hidden; }
   body {
     font-family: "Courier New", "Lucida Console", monospace;
     color: var(--black);
     line-height: 1.4;
     padding: 16px;
     -webkit-font-smoothing: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   .wrap { max-width: 680px; margin: 0 auto; }
 
@@ -199,6 +201,21 @@
     padding-top: 16px;
     margin-top: 8px;
   }
+
+  /* ---- MOBILE ---- */
+  @media (max-width: 480px) {
+    :root { --shadow: 5px 5px 0 var(--black); }
+    body { padding: 12px; }
+    .block { padding: 16px; margin-bottom: 18px; }
+    .pitch p { font-size: 1.05rem; }
+    .pitch .huge { font-size: 1.2rem; }
+    .pitch-rat { width: 120px; margin: 0 0 10px 12px; }
+    .facts li { font-size: 1rem; }
+    .facts .lbl { flex-basis: 58px; }
+    h2 { font-size: 1.3rem; }
+    .roster li { font-size: 1rem; }
+    button { padding: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -221,7 +238,7 @@
     </div>
 
     <div class="block note">
-      I'll send my Venmo link to the <strong>first 8 people</strong> that reply affirmatively.
+      I'll send my Venmo link to the <strong id="remaining">next 8 people</strong> that reply affirmatively.
       Please let me know by <strong>Friday</strong>.
       <div class="spots" id="spots" hidden></div>
     </div>
@@ -267,6 +284,9 @@
 
     function renderSpots(count) {
       if (typeof count !== 'number' || count < 0) return;
+      var remaining = Math.max(0, VENMO_SPOTS - count);
+      var remEl = document.getElementById('remaining');
+      if (remEl) remEl.textContent = 'next ' + remaining + (remaining === 1 ? ' person' : ' people');
       if (count <= VENMO_SPOTS) {
         spots.className = 'spots';
         spots.textContent = count + ' of ' + VENMO_SPOTS + ' spots claimed';

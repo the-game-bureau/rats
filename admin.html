@@ -8,6 +8,7 @@
 <style>
   :root { --black:#000; --paper:#f4f1e8; --yellow:#ffe600; --red:#ff3b00; --shadow:8px 8px 0 var(--black); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
   body {
     font-family: "Courier New", monospace;
     background: var(--paper);
@@ -16,6 +17,8 @@
     max-width: 560px;
     margin: 0 auto;
     line-height: 1.4;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   h1 {
     text-transform: uppercase;
@@ -111,6 +114,17 @@
   .btn-remove { background: var(--red); color: var(--paper); }
   .summary { margin-top: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
   .empty { padding: 12px; border: 4px dashed var(--black); text-align: center; text-transform: uppercase; font-weight: 900; margin-top: 8px; }
+  #listwrap { overflow-x: auto; }
+  @media (max-width: 480px) {
+    :root { --shadow: 5px 5px 0 var(--black); }
+    body { padding: 12px; }
+    .block { padding: 16px; margin-bottom: 18px; }
+    .countnum { font-size: 3rem; }
+    th, td { padding: 6px; font-size: .82rem; }
+    td .mini { font-size: .62rem; padding: 5px 6px; }
+    .addrow input[type="text"] { flex-basis: 100%; }
+    .addrow button { flex: 1; }
+  }
 </style>
 </head>
 <body>
