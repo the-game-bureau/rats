@@ -107,6 +107,28 @@
     text-align: center;
   }
   .spots.full { background: var(--red); color: var(--paper); }
+  .roster ul { list-style: none; }
+  .roster li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 2px dashed var(--black);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .roster li:last-child { border-bottom: none; }
+  .roster .tag {
+    font-size: .68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 900;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .roster .tag.paid { background: var(--yellow); color: var(--black); }
+  .roster .tag.pending { background: var(--black); color: var(--paper); }
 
   /* ---- FORM ---- */
   h2 {
@@ -204,6 +226,11 @@
       <div class="spots" id="spots" hidden></div>
     </div>
 
+    <div class="block roster" id="roster" hidden>
+      <h2>Who's In</h2>
+      <ul id="rosterlist"></ul>
+    </div>
+
     <div class="block">
       <h2>RSVP // Count Me In</h2>
       <form id="rsvp" novalidate>
@@ -254,6 +281,31 @@
     fetch(COUNTER_URL)
       .then(function (r) { return r.json(); })
       .then(function (d) { renderSpots(d.count); })
+      .catch(function () {});
+
+    // Show the host-curated roster (who's in + who's paid).
+    var roster = document.getElementById('roster');
+    var rosterList = document.getElementById('rosterlist');
+
+    function escHtml(s) {
+      return String(s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+
+    fetch(COUNTER_URL + '?list=1')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var list = (d && d.list) || [];
+        if (!list.length) return;
+        rosterList.innerHTML = list.map(function (p) {
+          var tag = p.paid
+            ? '<span class="tag paid">Paid</span>'
+            : '<span class="tag pending">RSVP’d</span>';
+          return '<li><span>' + escHtml(p.name) + '</span>' + tag + '</li>';
+        }).join('');
+        roster.hidden = false;
+      })
       .catch(function () {});
 
     form.addEventListener('submit', function (e) {
