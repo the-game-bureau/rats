@@ -344,6 +344,12 @@
       var first = document.getElementById('first').value.trim();
       var last = document.getElementById('last').value.trim();
       if (!first || !last) {
+        ok.style.display = 'block';
+        ok.style.background = 'var(--red)';
+        ok.style.color = 'var(--paper)';
+        ok.textContent = !first && !last
+          ? 'FIRST NAME AND LAST INITIAL ARE REQUIRED.'
+          : (!first ? 'FIRST NAME IS REQUIRED.' : 'LAST INITIAL IS REQUIRED.');
         (first ? document.getElementById('last') : document.getElementById('first')).focus();
         return;
       }
